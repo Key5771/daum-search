@@ -1,7 +1,8 @@
 function fetchUrl(url, parameter) {
-  return fetch(url)
+  const urlParam = new URLSearchParams(parameter);
+  return fetch(`${url}?${urlParam.toString()}`, parameter)
     .then((response) => response.json())
-    .catch((reject) => null);
+    .catch(() => null);
 }
 
 export { fetchUrl };
