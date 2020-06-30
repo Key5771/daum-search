@@ -3,10 +3,11 @@ const $result = document.getElementById('list');
 function render(data) {
   const html = data.map((list, index) => {
     return `<li data-index="${index}">
-          <span class="title">${list.title}</span>
-          <span class="coverImage">${list.coverImage}</span>
-          <span class="path">${list.path}</span>
-          <span class="totalView">${list.totalView}</span>
+          <h1>${list.title}</h1><br>
+          <img src=${list.coverImage}><br>
+          <h3><a href=https://1boon.kakao.com/${list.path}>${list.path}</a></h3><br>
+          <h3>${list.totalView}</h3><br>
+          <br>
         </li>`;
   });
 
