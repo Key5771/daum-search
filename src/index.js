@@ -1,4 +1,5 @@
 import { fetchUrl } from './fetch-url';
+import { render } from './html-render';
 
 const { default: dataModel } = require('./data-model');
 
@@ -8,14 +9,15 @@ const $enter = document.getElementById('enter');
 
 window.addEventListener('load', (event) => {
   fetchUrl('https://1boon.kakao.com/ch/trending.json').then((data) => {
-    console.log(data.data);
+    render(data.data);
   });
 });
 
 $trending.addEventListener('click', function () {
   fetchUrl('https://1boon.kakao.com/ch/trending.json').then((response) =>
-    console.log(response.data),
+    render(response.data),
   );
+
   $trending.className = 'active';
   $issue.className = '';
   $enter.className = '';
@@ -23,8 +25,9 @@ $trending.addEventListener('click', function () {
 
 $issue.addEventListener('click', function () {
   fetchUrl('https://1boon.kakao.com/ch/issue.json').then((response) =>
-    console.log(response.data),
+    render(response.data),
   );
+
   $trending.className = '';
   $issue.className = 'active';
   $enter.className = '';
@@ -32,8 +35,9 @@ $issue.addEventListener('click', function () {
 
 $enter.addEventListener('click', function () {
   fetchUrl('https://1boon.kakao.com/ch/enter.json').then((response) =>
-    console.log(response.data),
+    render(response.data),
   );
+
   $trending.className = '';
   $issue.className = '';
   $enter.className = 'active';
