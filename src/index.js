@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
-import { fetchUrl } from './fetch-url';
 import { render } from './html-render';
+import { contents, TabStatus } from './status';
 
 import './index.css';
 
@@ -11,37 +11,21 @@ const $enter = document.getElementById('enter');
 const $button = document.querySelector('.btn.btn-default');
 const $loading = document.getElementById('loading');
 
-const TRENDING = 'TRENDING';
-const ISSUE = 'ISSUE';
-const ENTER = 'ENTER';
-const URLMap = {
-  TRENDING: 'https://1boon.kakao.com/ch/trending.json',
-  ISSUE: 'https://1boon.kakao.com/ch/issue.json',
-  ENTER: 'https://1boon.kakao.com/ch/enter.json',
-};
-
-let tab = TRENDING;
-let page = 1;
-let hasNext = true;
-
-function changeToNewTab(tabName) {
-  tab = tabName;
-  page = 1;
-  hasNext = true;
-}
+// tab 상태를 관리하는 객체
+let tabStatus = new TabStatus(contents.TRENDING);
 
 function changeClass(tabName) {
   Array.from([$trending, $issue, $enter]).forEach((element) => {
     element.className = '';
   });
   switch (tabName) {
-    case TRENDING:
+    case contents.TRENDING:
       $trending.className = 'active';
       break;
-    case ISSUE:
+    case contents.ISSUE:
       $issue.className = 'active';
       break;
-    case ENTER:
+    case contents.ENTER:
       $enter.className = 'active';
       break;
     default:
@@ -60,39 +44,36 @@ function hideElement(element) {
   element.style.display = 'none';
 }
 
+function loadPage() {
+  showElement($loading);
+  tabStatus.nextPage().then((response) => {
+    render(response);
+    hideElement($loading);
+  });
+}
+
 function makeChangeNewTabListener(tabName) {
   return () => {
     clearListElement($list);
-    changeToNewTab(tabName);
+    tabStatus = new TabStatus(tabName);
     changeClass(tabName);
-    showElement($loading);
-    fetchUrl(URLMap[tab], { page }).then((response) => {
-      render(response.data);
-      hideElement($loading);
-    });
+    loadPage();
   };
 }
 
 window.addEventListener('load', () => {
-  showElement($loading);
-  fetchUrl(URLMap[tab], { page }).then((response) => {
-    render(response.data);
-    hideElement($loading);
-  });
+  loadPage();
 });
 
-$trending.addEventListener('click', makeChangeNewTabListener(TRENDING));
-$issue.addEventListener('click', makeChangeNewTabListener(ISSUE));
-$enter.addEventListener('click', makeChangeNewTabListener(ENTER));
+$trending.addEventListener(
+  'click',
+  makeChangeNewTabListener(contents.TRENDING),
+);
+$issue.addEventListener('click', makeChangeNewTabListener(contents.ISSUE));
+$enter.addEventListener('click', makeChangeNewTabListener(contents.ENTER));
 
 $button.addEventListener('click', () => {
-  if (hasNext) {
-    showElement($loading);
-    fetchUrl(URLMap[tab], { page: page + 1 }).then((result) => {
-      hasNext = result.pagingInfo.hasNext;
-      page += 1;
-      render(result.data);
-      hideElement($loading);
-    });
+  if (tabStatus.hasNext) {
+    loadPage();
   }
 });
